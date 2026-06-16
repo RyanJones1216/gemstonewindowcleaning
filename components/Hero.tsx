@@ -115,7 +115,7 @@ export default function Hero() {
           </a>
           {/* Replace XXXXXXXXXX with the owner's real phone number */}
           <a
-            href="sms:+1XXXXXXXXXX"
+            href="sms:+19258199605"
             className="w-full sm:w-auto px-8 py-3.5 rounded-full text-base font-semibold border-2 transition-all duration-200 hover:scale-105 hover:shadow-xl"
             style={{
               borderColor: "rgba(255,255,255,0.7)",
