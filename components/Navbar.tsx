@@ -57,6 +57,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-8">
           <NavLink href="#services">Services</NavLink>
           <NavLink href="#why-us">Why Us</NavLink>
+          <NavLink href="#pricing">Pricing</NavLink>
           <NavLink href="#contact">Contact</NavLink>
           <a
             href="#contact"
@@ -96,6 +97,9 @@ export default function Navbar() {
           </MobileLink>
           <MobileLink href="#why-us" onClick={() => setMenuOpen(false)}>
             Why Us
+          </MobileLink>
+          <MobileLink href="#pricing" onClick={() => setMenuOpen(false)}>
+            Pricing
           </MobileLink>
           <MobileLink href="#contact" onClick={() => setMenuOpen(false)}>
             Contact
