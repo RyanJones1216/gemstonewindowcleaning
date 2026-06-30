@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 
+const DISCOUNT = 0.10; // 4th of July — remove this line (and all disc() calls) when promo ends
+const disc = (price: number) => Math.round(price * (1 - DISCOUNT));
+
 type TierId = "sm" | "md" | "lg";
 
 const PANE_TIERS: { label: string; id: TierId }[] = [
@@ -44,11 +47,11 @@ const PLANS = [
 // Interior add-on — price varies by pane tier
 const INTERIOR_ADDON: Record<TierId, number> = { sm: 100, md: 125, lg: 150 };
 
-// Screen add-on — flat price regardless of tier
+// Screen add-on — flat price regardless of tier (original prices; discounted at render)
 const SCREEN_TIERS = [
-  { label: "No screens", price: 0 },
-  { label: "0 – 15 screens  (+$35)", price: 35 },
-  { label: "16 – 30 screens  (+$75)", price: 75 },
+  { label: "No screens", price: 0, origPrice: 0 },
+  { label: "0 – 15 screens", price: 35, origPrice: 35 },
+  { label: "16 – 30 screens", price: 75, origPrice: 75 },
 ];
 
 function CheckIcon({ highlighted }: { highlighted: boolean }) {
@@ -118,12 +121,13 @@ export default function Pricing() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {PLANS.map((plan) => {
             const exteriorPrice = plan.prices[tier];
-            const total = exteriorPrice + (addInterior ? interiorPrice : 0) + screenAddon;
+            const originalTotal = exteriorPrice + (addInterior ? interiorPrice : 0) + screenAddon;
+            const total = disc(exteriorPrice) + (addInterior ? disc(interiorPrice) : 0) + (screenAddon > 0 ? disc(screenAddon) : 0);
 
-            // Build price breakdown string
-            const parts: string[] = [`$${exteriorPrice} exterior`];
-            if (addInterior) parts.push(`$${interiorPrice} interior`);
-            if (screenAddon > 0) parts.push(`$${screenAddon} screens`);
+            // Build price breakdown string (discounted values)
+            const parts: string[] = [`$${disc(exteriorPrice)} exterior`];
+            if (addInterior) parts.push(`$${disc(interiorPrice)} interior`);
+            if (screenAddon > 0) parts.push(`$${disc(screenAddon)} screens`);
             const breakdown = parts.length > 1 ? parts.join(" + ") : null;
 
             return (
@@ -166,9 +170,24 @@ export default function Pricing() {
                 </p>
 
                 {/* Price */}
-                <div className="mb-1">
+                <div className="flex items-end gap-3 mb-1">
+                  {/* Original price — struck through */}
+                  <span
+                    className="text-2xl font-semibold line-through"
+                    style={{ color: plan.highlight ? "rgba(255,255,255,0.35)" : "#CBD5E1" }}
+                  >
+                    ${originalTotal}
+                  </span>
+                  {/* Discounted price */}
                   <span className="text-5xl font-bold" style={{ color: plan.highlight ? "white" : "#5B2D8E" }}>
                     ${total}
+                  </span>
+                  {/* Discount badge */}
+                  <span
+                    className="mb-1 px-2 py-0.5 rounded-full text-xs font-bold"
+                    style={{ backgroundColor: "#7DD3FC", color: "#1E293B" }}
+                  >
+                    -10%
                   </span>
                 </div>
                 {breakdown && (
@@ -246,9 +265,14 @@ export default function Pricing() {
               </div>
               {/* Pricing callout */}
               <div className="flex-shrink-0 text-right">
-                <span className="text-2xl font-bold" style={{ color: "#5B2D8E" }}>
-                  +${interiorPrice}
-                </span>
+                <div className="flex items-baseline gap-2 justify-end">
+                  <span className="text-base font-semibold line-through" style={{ color: "#CBD5E1" }}>
+                    +${interiorPrice}
+                  </span>
+                  <span className="text-2xl font-bold" style={{ color: "#5B2D8E" }}>
+                    +${disc(interiorPrice)}
+                  </span>
+                </div>
                 <p className="text-xs" style={{ color: "#94A3B8" }}>
                   for {tier === "sm" ? "0–25" : tier === "md" ? "26–40" : "41–60"} panes
                 </p>
@@ -276,7 +300,7 @@ export default function Pricing() {
                     : { backgroundColor: "white", color: "#5B2D8E", borderColor: "rgba(91,45,142,0.25)" }
                 }
               >
-                Add interior (+${interiorPrice})
+                Add interior (+${disc(interiorPrice)})
               </button>
             </div>
 
@@ -325,7 +349,18 @@ export default function Pricing() {
                       : { backgroundColor: "white", color: "#5B2D8E", borderColor: "rgba(91,45,142,0.25)" }
                   }
                 >
-                  {s.label}
+                  {s.price === 0
+                    ? s.label
+                    : (
+                      <>
+                        {s.label}{" "}
+                        <span style={{ opacity: 0.55, textDecoration: "line-through", fontWeight: 400 }}>
+                          +${s.origPrice}
+                        </span>{" "}
+                        +${disc(s.origPrice)}
+                      </>
+                    )
+                  }
                 </button>
               ))}
             </div>
