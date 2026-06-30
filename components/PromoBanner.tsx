@@ -35,7 +35,7 @@ export default function PromoBanner() {
       </p>
 
       <p className="text-base sm:text-lg font-semibold mt-1" style={{ color: "rgba(224,242,254,0.85)" }}>
-        All window cleaning services &amp; plans — interior, exterior, and screens.
+        All exterior window cleaning service plans.
       </p>
 
       <p className="text-xs mt-3" style={{ color: "rgba(224,242,254,0.5)" }}>
