@@ -47,11 +47,11 @@ const PLANS = [
 // Interior add-on — price varies by pane tier
 const INTERIOR_ADDON: Record<TierId, number> = { sm: 100, md: 125, lg: 150 };
 
-// Screen add-on — flat price regardless of tier (original prices; discounted at render)
+// Screen add-on — flat price, no discount applied
 const SCREEN_TIERS = [
-  { label: "No screens", price: 0, origPrice: 0 },
-  { label: "0 – 15 screens", price: 35, origPrice: 35 },
-  { label: "16 – 30 screens", price: 75, origPrice: 75 },
+  { label: "No screens", price: 0 },
+  { label: "0 – 15 screens  (+$35)", price: 35 },
+  { label: "16 – 30 screens  (+$75)", price: 75 },
 ];
 
 function CheckIcon({ highlighted }: { highlighted: boolean }) {
@@ -121,13 +121,14 @@ export default function Pricing() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {PLANS.map((plan) => {
             const exteriorPrice = plan.prices[tier];
+            // Only exterior glass is discounted; interior and screens are full price
             const originalTotal = exteriorPrice + (addInterior ? interiorPrice : 0) + screenAddon;
-            const total = disc(exteriorPrice) + (addInterior ? disc(interiorPrice) : 0) + (screenAddon > 0 ? disc(screenAddon) : 0);
+            const total = disc(exteriorPrice) + (addInterior ? interiorPrice : 0) + screenAddon;
 
-            // Build price breakdown string (discounted values)
+            // Build price breakdown string
             const parts: string[] = [`$${disc(exteriorPrice)} exterior`];
-            if (addInterior) parts.push(`$${disc(interiorPrice)} interior`);
-            if (screenAddon > 0) parts.push(`$${disc(screenAddon)} screens`);
+            if (addInterior) parts.push(`$${interiorPrice} interior`);
+            if (screenAddon > 0) parts.push(`$${screenAddon} screens`);
             const breakdown = parts.length > 1 ? parts.join(" + ") : null;
 
             return (
@@ -265,14 +266,9 @@ export default function Pricing() {
               </div>
               {/* Pricing callout */}
               <div className="flex-shrink-0 text-right">
-                <div className="flex items-baseline gap-2 justify-end">
-                  <span className="text-base font-semibold line-through" style={{ color: "#CBD5E1" }}>
-                    +${interiorPrice}
-                  </span>
-                  <span className="text-2xl font-bold" style={{ color: "#5B2D8E" }}>
-                    +${disc(interiorPrice)}
-                  </span>
-                </div>
+                <span className="text-2xl font-bold" style={{ color: "#5B2D8E" }}>
+                  +${interiorPrice}
+                </span>
                 <p className="text-xs" style={{ color: "#94A3B8" }}>
                   for {tier === "sm" ? "0–25" : tier === "md" ? "26–40" : "41–60"} panes
                 </p>
@@ -300,7 +296,7 @@ export default function Pricing() {
                     : { backgroundColor: "white", color: "#5B2D8E", borderColor: "rgba(91,45,142,0.25)" }
                 }
               >
-                Add interior (+${disc(interiorPrice)})
+                Add interior (+${interiorPrice})
               </button>
             </div>
 
@@ -349,18 +345,7 @@ export default function Pricing() {
                       : { backgroundColor: "white", color: "#5B2D8E", borderColor: "rgba(91,45,142,0.25)" }
                   }
                 >
-                  {s.price === 0
-                    ? s.label
-                    : (
-                      <>
-                        {s.label}{" "}
-                        <span style={{ opacity: 0.55, textDecoration: "line-through", fontWeight: 400 }}>
-                          +${s.origPrice}
-                        </span>{" "}
-                        +${disc(s.origPrice)}
-                      </>
-                    )
-                  }
+                  {s.label}
                 </button>
               ))}
             </div>
